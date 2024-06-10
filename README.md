@@ -20,21 +20,21 @@ Developed was a pipeline template for Azure DevOps. The pipeline is a .yaml file
 - 1 Stream Analytics Cluster (40min creation time)
 
 The pipeline requires an storage account allowing to save terraform states in it. Variables to set for the pipelines are:
-  - tf-resourcegroup: 
-    Resourcegroup where the resources are located needed by terraform.
+- tf-resourcegroup: 
+  Resourcegroup where the resources are located needed by terraform.
 
-  - tf-storage-account: 
-    Storage account which terraform is allowed to operate on. 
+- tf-storage-account: 
+  Storage account which terraform is allowed to operate on. 
 
-  - tf-storage-account-key:
-    Storage account key to authorize terraform.
+- tf-storage-account-key:
+  Storage account key to authorize terraform.
 
-  - service_connection
-    Service principal which terraform can use to create and destroy azure resources.
+- service_connection
+  Service principal which terraform can use to create and destroy azure resources.
 ```
 Pipeline
 ```
-infrastructure/pipelines/data-platform-rollout.yaml
+pipelines/dataplatform-build.yaml
 ```
 
 ### Data Exfiltration and Infiltration
