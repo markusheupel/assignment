@@ -5,7 +5,7 @@
 ### Architecture
 _Design an architecture that allows us to collect, process and analyze data from our taxi operation as well as send data back to individual cars_:
 
-Designed was an archtecture with 3 instances of Storage that is layered into raw, enriched and curated. The data will be gathered through an IoT Hub sending the raw data into the first data layer (raw) but also to an Stream Analytics for stream processing. This stream processing writes near-realtime data to third (curated) layer. In Addition Databricks will run scheduled batch processing jobs cleaning/filtering/augmenting the raw data into the second (enriched) layer and ready-to-consumption data into third (curated) layer. Applications like Power BI or other service can consume both near-realtime and batch data and create a merged view. App Services can use the data and send back data to the IoT device over the Hub.
+Designed was an archtecture with 3 instances of Storage that is layered into raw, enriched and curated. The data will be gathered through an IoT Hub sending the raw data into the first data layer (raw) but also to an Stream Analytics for stream processing. This stream processing writes near-realtime data to third (curated) layer and streaming capable tools like Power BI. In Addition Databricks will run scheduled batch processing jobs cleaning/filtering/augmenting the raw data into the second (enriched) layer and ready-to-consumption data into third (curated) layer. Applications like Power BI or other service can consume both near-realtime and batch data and create a merged view. App Services can use the data and send back data to the IoT device over the Hub.
 
 ![alt.text](arch.jpg "Architecture Data-Platform")
 
