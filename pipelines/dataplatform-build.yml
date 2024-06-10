@@ -1,0 +1,91 @@
+trigger: 
+- none
+
+variables:
+  - name: tf-resourcegroup
+    value: ...
+  - name: tf-storage-account
+    value: ...
+  - name: tf-storage-account-key
+    value: ...
+  - name: service_connection
+    value: ...
+  - name: tf-working-dir
+    value: $(System.DefaultWorkingDirectory)/infrastructure/data-platform
+
+stages:
+- stage: terraform_platform_rollout
+  displayName: Terraform AML Rollout
+  jobs:
+    - job: "tf_rollout"
+      displayName: "Rollout"
+      steps:
+        - task: TerraformInstaller@0
+          inputs:
+            terraformVersion: 'latest'
+        
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: '$(service_connection)'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az storage container create -n data-platform --account-name $(tf-storage-account) --account-key $(tf-storage-account-key)
+            addSpnToEnvironment: true
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'init'
+            workingDirectory: '$(tf-working-dir)'
+            backendType: 'azurerm'
+            backendServiceArm: '$(service_connection)'
+            backendAzureRmResourceGroupName: '$(tf-resourcegroup)'
+            backendAzureRmStorageAccountName: '$(tf-storage-account)'
+            backendAzureRmContainerName: 'data-platform'
+            backendAzureRmKey: '$(tf-storage-account-key)'
+            allowTelemetryCollection: true
+          displayName: 'Terraform init'
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'validate'
+            workingDirectory: '$(tf-working-dir)'
+            allowTelemetryCollection: true
+          displayName: 'Terraform validate'
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'plan'
+            workingDirectory: '$(tf-working-dir)'
+            environmentServiceName: '$(service_connection)'
+            commandOptions: '-out tfplan'
+            allowTelemetryCollection: true
+            publishPlanResults: 'data-platform'
+          displayName: 'Terraform plan'
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'apply'
+            workingDirectory: '$(tf-working-dir)'
+            environmentServiceName: $(service_connection)
+            commandOptions: '"tfplan"'
+            allowTelemetryCollection: true
+          displayName: 'Terraform apply'
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'apply'
+            workingDirectory: '$(tf-working-dir)'
+            environmentServiceName: '$(service_connection)'
+            allowTelemetryCollection: true
+          displayName: 'Terraform reapply on fail'
+          condition: Failed()
+
+        - task: TerraformCLI@0
+          inputs:
+            command: 'destroy'
+            workingDirectory: '$(tf-working-dir)'
+            environmentServiceName: '$(service_connection)'
+            allowTelemetryCollection: true
+          displayName: 'Terraform destroy on fail'
+          condition: Failed()
